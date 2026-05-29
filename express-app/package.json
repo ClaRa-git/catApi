@@ -4,7 +4,8 @@
   "description": "an app for cat lovers",
   "main": "server.js",
   "scripts": {
-    "test": "\"echo \\\"lancer un test\\\" && exit 1\""
+    "dev": "nodemon app.js",
+    "test": "jest"
   },
   "author": "claRa",
   "license": "ISC",
