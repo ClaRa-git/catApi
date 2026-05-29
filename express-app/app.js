@@ -12,6 +12,6 @@ app.use('/cats', catsRoutes);
 
 const PORT = 3000;
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`Express server running on port ${PORT}`);
 });

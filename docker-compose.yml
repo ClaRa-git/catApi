@@ -1,0 +1,15 @@
+services:
+
+  symfony:
+    build: ./symfony-api
+    container_name: symfony-api
+    ports:
+      - "8000:8000"
+
+  express:
+    build: ./express-app
+    container_name: express-gateway
+    ports:
+      - "3000:3000"
+    depends_on:
+      - symfony
