@@ -62,7 +62,7 @@ jobs:
       - name: Login Docker Hub
         run: |
           echo "${{ secrets.DOCKERHUB_PASSWORD }}" | \
-          docker login docker.io \
+          docker login \
             -u "${{ secrets.DOCKERHUB_USERNAME }}" \
             --password-stdin
 
