@@ -1,0 +1,67 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ---------- PHP / Symfony ----------
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.3
+
+      - name: Install Symfony deps
+        working-directory: symfony-api
+        run: composer install
+
+      - name: Run Symfony tests
+        working-directory: symfony-api
+        run: php bin/phpunit
+
+      # ---------- Node / Express ----------
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Express deps
+        working-directory: express-app
+        run: npm install
+
+      - name: Run Express tests
+        working-directory: express-app
+        run: npm test
+  
+    docker:
+      runs-on: ubuntu-latest
+      needs: test
+
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v4
+
+        - name: Login Docker Hub
+          uses: docker/login-action@v3
+          with:
+            username: ${{ secrets.DOCKERHUB_USERNAME }}
+            password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+        - name: Build Symfony image
+          run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/cat-symfony ./symfony-api
+
+        - name: Build Express image
+          run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/cat-express ./express-app
+
+        - name: Push Symfony image
+          run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/cat-symfony
+
+        - name: Push Express image
+          run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/cat-express
