@@ -12,10 +12,16 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 RUN curl -sS https://get.symfony.com/cli/installer | bash \
     && mv /root/.symfony*/bin/symfony /usr/local/bin/symfony
 
-# Utilisateur non-root pour éviter les restrictions Composer
+# Utilisateur non-root
 RUN useradd -m appuser
+
 WORKDIR /app
+
+# Donner /app à appuser AVANT de switcher        ← fix
+RUN chown appuser:appuser /app
+
 COPY --chown=appuser:appuser . .
+
 USER appuser
 
 RUN composer install --no-interaction --optimize-autoloader
