@@ -7,7 +7,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -18,9 +17,14 @@ jobs:
         with:
           php-version: 8.3
 
+      - name: Create Symfony .env
+        working-directory: symfony-api
+        run: |
+          cp .env.dev .env
+
       - name: Install Symfony deps
         working-directory: symfony-api
-        run: composer install
+        run: composer install --no-interaction --prefer-dist
 
       - name: Run Symfony tests
         working-directory: symfony-api
@@ -43,7 +47,6 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     needs: test
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
