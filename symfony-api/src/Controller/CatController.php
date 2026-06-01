@@ -24,9 +24,7 @@ final class CatController extends AbstractController
         'origin'      => $cat['origin'] ?? null,
         'temperament' => $cat['temperament'] ?? null,
         'description' => $cat['description'] ?? null,
-        'image_url'   => isset($cat['reference_image_id'])
-                            ? 'https://cdn2.thecatapi.com/images/' . $cat['reference_image_id'] . '.jpg'
-                            : null,
+        'image_id'   => $cat['reference_image_id'] ?? null,
                     ];
                 }, $cats);
         return $this->json($formattedCats);
