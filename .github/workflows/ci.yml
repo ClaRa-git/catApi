@@ -26,13 +26,14 @@ jobs:
         working-directory: symfony-api
         run: composer install --no-interaction --prefer-dist
 
+      - name: Create var directory
+        working-directory: symfony-api
+        run: mkdir -p var
+
       - name: Create test database schema
         working-directory: symfony-api
         run: php bin/console doctrine:schema:create --env=test
 
-      - name: Run Symfony tests
-        working-directory: symfony-api
-        run: php bin/phpunit
       - name: Run Symfony tests
         working-directory: symfony-api
         run: php bin/phpunit
