@@ -285,6 +285,31 @@
       padding: .15rem .55rem;
     }
 
+    /* ── FAVORI ── */
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: .6rem 1.1rem .9rem;
+    }
+
+    .btn-fav {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: .3rem;
+      border-radius: 50%;
+      color: var(--ink-faint);
+      transition: color .2s, transform .2s;
+      line-height: 0;
+      z-index: 1;
+    }
+
+    .btn-fav:hover { color: #E24B4A; transform: scale(1.15); }
+    .btn-fav.active { color: #E24B4A; }
+    .btn-fav svg { width: 18px; height: 18px; }
+    .btn-fav.active svg { fill: #E24B4A; }
+
     /* ── EMPTY / ERROR ── */
     .state-msg {
       grid-column: 1 / -1;
@@ -426,6 +451,36 @@
     const API_BASE = '';
     let allBreeds = [];
     let filtered = [];
+    let userFavorites = new Set();
+
+    async function fetchBreeds() {
+      const res = await fetch(`${API_BASE}/cats`);
+      if (!res.ok) throw new Error('Erreur réseau');
+      return res.json();
+    }
+
+    async function fetchFavorites() {
+      try {
+        const res = await fetch(`${API_BASE}/cats/favorites`);
+        if (!res.ok) return;
+        const ids = await res.json();
+        userFavorites = new Set(ids);
+      } catch {}
+    }
+
+    async function toggleFavorite(breedId, btn) {
+      try {
+        const res = await fetch(`${API_BASE}/cats/${breedId}/favorites`, { method: 'POST' });
+        const data = await res.json();
+        if (data.favorited) {
+          userFavorites.add(breedId);
+          btn.classList.add('active');
+        } else {
+          userFavorites.delete(breedId);
+          btn.classList.remove('active');
+        }
+      } catch {}
+    }
 
     async function fetchBreeds() {
       const res = await fetch(`${API_BASE}/cats`);
@@ -499,6 +554,14 @@
             <h2 class="card-name">${breed.name}</h2>
             ${tags.length ? `<div class="card-tags">${tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>` : ''}
           </div>
+          <div class="card-footer">
+            <span></span>
+            <button class="btn-fav ${userFavorites.has(breed.id) ? 'active' : ''}" aria-label="Ajouter aux favoris" data-id="${breed.id}">
+              <svg viewBox="0 0 24 24" fill="${userFavorites.has(breed.id) ? '#E24B4A' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+              </svg>
+            </button>
+          </div>
         `;
 
         const slot = card.querySelector('.card-img-slot');
@@ -512,6 +575,14 @@
         } else {
           slot.appendChild(makePlaceholder());
         }
+
+        // bouton favori — stoppe la navigation vers la page détail
+        const btnFav = card.querySelector('.btn-fav');
+        btnFav.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          toggleFavorite(breed.id, btnFav);
+        });
 
         grid.appendChild(card);
 
@@ -547,7 +618,7 @@
     async function init() {
       renderSkeletons();
       try {
-        allBreeds = await fetchBreeds();
+        [allBreeds] = await Promise.all([fetchBreeds(), fetchFavorites()]);
         document.getElementById('pageMeta').textContent = `${allBreeds.length} races répertoriées`;
         populateOrigins(allBreeds);
         renderGrid(allBreeds);
