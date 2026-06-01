@@ -57,6 +57,11 @@ describe('GET /cats', () => {
 
         beforeEach(() => {
             axios.get.mockRejectedValue(new Error('ECONNREFUSED'));
+            jest.spyOn(console, 'error').mockImplementation(() => {});
+        });
+
+        afterEach(() => {
+            console.error.mockRestore();
         });
 
         it('retourne le status 500', async () => {
