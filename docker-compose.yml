@@ -1,10 +1,14 @@
 services:
-
   symfony:
     build: ./symfony-api
     container_name: symfony-api
     ports:
       - "8000:8000"
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://app:password@database:5432/app
 
   express:
     build: ./express-app
@@ -13,3 +17,22 @@ services:
       - "3000:3000"
     depends_on:
       - symfony
+
+  database:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: app
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: app
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "app", "-U", "app"]
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    volumes:
+      - database_data:/var/lib/postgresql/data
+
+volumes:
+  database_data:

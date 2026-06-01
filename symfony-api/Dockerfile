@@ -1,8 +1,8 @@
 FROM php:8.3-cli
 
 RUN apt-get update && apt-get install -y \
-    git unzip libxml2-dev zip curl \
-    && docker-php-ext-install xml \
+    git unzip libxml2-dev zip curl libpq-dev \
+    && docker-php-ext-install xml pdo pdo_pgsql \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer

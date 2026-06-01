@@ -437,6 +437,7 @@
             <div>
               <p class="breed-label">${breed.origin || ''}</p>
               <h1 class="breed-name"><em>${breed.name}</em></h1>
+              <p id="viewCount" style="font-size:.75rem;color:var(--ink-faint);margin-top:.3rem">…</p>
               <p class="breed-desc">${breed.description || ''}</p>
             </div>
 
@@ -506,8 +507,18 @@
         if (!res.ok) throw new Error('Race introuvable');
         const breed = await res.json();
         renderBreed(breed);
-      } catch (e) {
-        renderError('Race introuvable ou serveur indisponible.');
+
+        // incrémenter les vues
+        fetch(`${API_BASE}/cats/${id}/views`, { method: 'POST' })
+          .then(r => r.json())
+          .then(data => {
+            const el = document.getElementById('viewCount');
+            if (el) el.textContent = `${data.view_count} vue${data.view_count > 1 ? 's' : ''}`;
+          })
+          .catch(() => {});
+
+        } catch (e) {
+          renderError('Race introuvable ou serveur indisponible.');
       }
     }
 
