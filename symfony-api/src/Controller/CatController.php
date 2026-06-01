@@ -20,6 +20,7 @@ final class CatController extends AbstractController
         $cats = $response->toArray();
         $formattedCats = array_map(function ($cat) {
         return [
+        'id'          => $cat['id'] ?? null,
         'name'        => $cat['name'] ?? null,
         'origin'      => $cat['origin'] ?? null,
         'temperament' => $cat['temperament'] ?? null,
