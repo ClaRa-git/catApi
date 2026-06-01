@@ -1,8 +1,11 @@
 const axios = require('axios');
+const SYMFONY_URL = process.env.SYMFONY_URL || 'http://symfony:8000';
+
+const getHeaders = (req) => ({ 'X-Session-Id': req.sessionId });
 
 const getCats = async (req, res) => {
   try {
-    const response = await axios.get('http://symfony:8000/cats');
+    const response = await axios.get(`${SYMFONY_URL}/cats`, { headers: getHeaders(req) });
     res.json(response.data);
   } catch (error) {
     console.error(error.message);
@@ -12,7 +15,7 @@ const getCats = async (req, res) => {
 
 const getCatById = async (req, res) => {
   try {
-    const response = await axios.get(`http://symfony:8000/cats/${req.params.id}`);
+    const response = await axios.get(`${SYMFONY_URL}/cats/${req.params.id}`, { headers: getHeaders(req) });
     res.json(response.data);
   } catch (error) {
     console.error(error.message);
