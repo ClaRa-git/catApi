@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>catApi — explorer les races</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #F7F3EE;
+      --ink: #1A1714;
+      --ink-muted: #6B6560;
+      --ink-faint: #C4BDB6;
+      --accent: #C4622D;
+      --accent-light: #F5E8DF;
+      --card-bg: #FFFFFF;
+      --nav-h: 64px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: var(--nav-h);
+      background: var(--cream);
+      border-bottom: 1px solid var(--ink-faint);
+      display: flex;
+      align-items: center;
+      padding: 0 2rem;
+      gap: 2rem;
+    }
+
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: var(--ink);
+      text-decoration: none;
+      letter-spacing: -.01em;
+      flex: 1;
+    }
+
+    .nav-logo span { color: var(--accent); font-style: italic; }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: .875rem;
+      font-weight: 400;
+      color: var(--ink-muted);
+      text-decoration: none;
+      letter-spacing: .02em;
+      transition: color .2s;
+    }
+
+    .nav-links a:hover { color: var(--ink); }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 5rem 2rem 3rem;
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .hero-label {
+      font-size: .75rem;
+      font-weight: 500;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-weight: 400;
+      line-height: 1.1;
+      letter-spacing: -.02em;
+      color: var(--ink);
+      margin-bottom: 1.25rem;
+    }
+
+    .hero h1 em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .hero-sub {
+      font-size: 1rem;
+      font-weight: 300;
+      color: var(--ink-muted);
+      line-height: 1.65;
+      max-width: 480px;
+    }
+
+    /* ── RANDOM CARD SECTION ── */
+    .spotlight {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 2rem 4rem;
+      width: 100%;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .btn-shuffle {
+      display: inline-flex;
+      align-items: center;
+      gap: .45rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .8rem;
+      font-weight: 500;
+      letter-spacing: .04em;
+      color: var(--accent);
+      background: none;
+      border: 1px solid var(--accent);
+      border-radius: 100px;
+      padding: .4rem 1rem;
+      cursor: pointer;
+      transition: background .2s, color .2s;
+    }
+
+    .btn-shuffle:hover {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-shuffle svg { width: 14px; height: 14px; transition: transform .4s; }
+    .btn-shuffle:hover svg { transform: rotate(180deg); }
+
+    /* ── CARD ── */
+    .card-wrap {
+      display: flex;
+      justify-content: center;
+    }
+
+    .cat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--ink-faint);
+      border-radius: 20px;
+      overflow: hidden;
+      width: 100%;
+      max-width: 560px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 280px;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity .4s ease, transform .4s ease;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .cat-card.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .cat-card:hover .card-img-wrap { transform: scale(1.03); }
+    .cat-card:hover .card-cta { gap: .6rem; }
+
+    .card-img-outer {
+      overflow: hidden;
+      background: var(--accent-light);
+      position: relative;
+    }
+
+    .card-img-wrap {
+      width: 100%;
+      height: 100%;
+      transition: transform .45s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .card-img-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: .5rem;
+      color: var(--accent);
+      opacity: .5;
+    }
+
+    .card-img-placeholder svg { width: 48px; height: 48px; }
+
+    .card-body {
+      padding: 1.75rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+    }
+
+    .card-origin {
+      font-size: .7rem;
+      font-weight: 500;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .card-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      font-weight: 600;
+      line-height: 1.15;
+      color: var(--ink);
+    }
+
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .35rem;
+      margin: .25rem 0;
+    }
+
+    .tag {
+      font-size: .7rem;
+      font-weight: 400;
+      color: var(--ink-muted);
+      background: var(--cream);
+      border: 1px solid var(--ink-faint);
+      border-radius: 100px;
+      padding: .2rem .65rem;
+    }
+
+    .card-desc {
+      font-size: .825rem;
+      font-weight: 300;
+      color: var(--ink-muted);
+      line-height: 1.6;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      flex: 1;
+    }
+
+    .card-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      font-size: .8rem;
+      font-weight: 500;
+      color: var(--accent);
+      margin-top: .5rem;
+      transition: gap .2s;
+    }
+
+    .card-cta svg { width: 14px; height: 14px; }
+
+    /* ── SKELETON ── */
+    .skeleton {
+      background: linear-gradient(90deg, #ede8e2 25%, #e4dfd8 50%, #ede8e2 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      border-radius: 6px;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    .skeleton-card {
+      background: var(--card-bg);
+      border: 1px solid var(--ink-faint);
+      border-radius: 20px;
+      overflow: hidden;
+      width: 100%;
+      max-width: 560px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 280px;
+    }
+
+    .skeleton-img { width: 100%; height: 100%; min-height: 280px; }
+    .skeleton-body { padding: 1.75rem 1.5rem; display: flex; flex-direction: column; gap: .75rem; }
+    .sk-line { height: 12px; border-radius: 6px; }
+
+    /* ── ERROR ── */
+    .error-state {
+      text-align: center;
+      padding: 3rem;
+      color: var(--ink-muted);
+      font-size: .9rem;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      margin-top: auto;
+      border-top: 1px solid var(--ink-faint);
+      padding: 1.5rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .footer-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .footer-logo span { color: var(--accent); font-style: italic; }
+
+    .footer-links {
+      display: flex;
+      gap: 1.5rem;
+      list-style: none;
+    }
+
+    .footer-links a {
+      font-size: .8rem;
+      color: var(--ink-muted);
+      text-decoration: none;
+      transition: color .2s;
+    }
+
+    .footer-links a:hover { color: var(--ink); }
+
+    .footer-credit {
+      font-size: .75rem;
+      color: var(--ink-faint);
+    }
+
+    @media (max-width: 540px) {
+      .cat-card, .skeleton-card { grid-template-columns: 1fr; }
+      .card-img-outer { min-height: 180px; }
+      nav { padding: 0 1rem; }
+      .hero, .spotlight { padding-left: 1rem; padding-right: 1rem; }
+      footer { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="/" class="nav-logo">cat<span>Api</span></a>
+    <ul class="nav-links">
+      <li><a href="/">Accueil</a></li>
+      <li><a href="/breeds">Races</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <section class="hero">
+      <p class="hero-label">Explorateur de races félines</p>
+      <h1>Découvrez<br>le monde <em>des chats</em></h1>
+      <p class="hero-sub">Parcourez les races du monde entier — origines, tempéraments, caractéristiques. Une race à la fois.</p>
+    </section>
+
+    <section class="spotlight">
+      <div class="section-header">
+        <h2 class="section-title">Race du moment</h2>
+        <button class="btn-shuffle" id="shuffleBtn" onclick="loadRandom()" aria-label="Afficher une autre race">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/>
+            <polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/>
+          </svg>
+          Autre race
+        </button>
+      </div>
+
+      <div class="card-wrap" id="cardWrap">
+        <div class="skeleton-card">
+          <div class="skeleton skeleton-img"></div>
+          <div class="skeleton-body">
+            <div class="skeleton sk-line" style="width:40%"></div>
+            <div class="skeleton sk-line" style="width:70%;height:22px;margin-bottom:.25rem"></div>
+            <div class="skeleton sk-line" style="width:90%"></div>
+            <div class="skeleton sk-line" style="width:80%"></div>
+            <div class="skeleton sk-line" style="width:60%"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span class="footer-logo">cat<span>Api</span></span>
+    <ul class="footer-links">
+      <li><a href="/">Accueil</a></li>
+      <li><a href="/breeds">Toutes les races</a></li>
+      <li><a href="https://thecatapi.com" target="_blank" rel="noopener">The Cat API</a></li>
+    </ul>
+    <span class="footer-credit">Données fournies par The Cat API</span>
+  </footer>
+
+  <script>
+    const API_BASE = '';
+    let allBreeds = [];
+
+    async function fetchBreeds() {
+      const res = await fetch(`${API_BASE}/cats`);
+      if (!res.ok) throw new Error('Erreur réseau');
+      return res.json();
+    }
+
+    function getRandomItem(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function getTags(breed) {
+      if (!breed.temperament) return [];
+      return breed.temperament.split(',').map(t => t.trim()).slice(0, 3);
+    }
+
+    function makePlaceholder() {
+      const div = document.createElement('div');
+      div.className = 'card-img-placeholder';
+      div.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+          <path d="M12 2C8 2 4 5 4 10c0 3 1.5 5.5 4 7l-1 3h10l-1-3c2.5-1.5 4-4 4-7 0-5-4-8-8-8z"/>
+          <circle cx="9" cy="10" r="1"/><circle cx="15" cy="10" r="1"/>
+        </svg>
+        <span style="font-size:.75rem">Pas d'image</span>`;
+      return div;
+    }
+
+    function tryLoadImage(imageId, imgEl) {
+      const exts = ['jpg', 'png', 'gif'];
+      const tryNext = (i) => {
+        if (i >= exts.length) {
+          imgEl.replaceWith(makePlaceholder());
+          return;
+        }
+        imgEl.src = `https://cdn2.thecatapi.com/images/${imageId}.${exts[i]}`;
+        imgEl.onerror = () => tryNext(i + 1);
+      };
+      tryNext(0);
+    }
+
+    function renderCard(breed) {
+      const wrap = document.getElementById('cardWrap');
+      const tags = getTags(breed);
+      const detailUrl = `/breeds/${breed.id}`;
+
+      const card = document.createElement('a');
+      card.className = 'cat-card';
+      card.href = detailUrl;
+      card.setAttribute('aria-label', `En savoir plus sur ${breed.name}`);
+
+      card.innerHTML = `
+        <div class="card-img-outer">
+          <div class="card-img-wrap" id="imgWrap"></div>
+        </div>
+        <div class="card-body">
+          <p class="card-origin">${breed.origin || '—'}</p>
+          <h3 class="card-name">${breed.name}</h3>
+          ${tags.length ? `<div class="card-tags">${tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>` : ''}
+          <p class="card-desc">${breed.description || 'Aucune description disponible.'}</p>
+          <span class="card-cta">
+            En savoir plus
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </span>
+        </div>
+      `;
+
+      wrap.innerHTML = '';
+      wrap.appendChild(card);
+
+      const imgWrap = card.querySelector('#imgWrap');
+      if (breed.image_id) {
+        const img = document.createElement('img');
+        img.alt = `Photo de ${breed.name}`;
+        img.loading = 'lazy';
+        imgWrap.appendChild(img);
+        tryLoadImage(breed.image_id, img);
+      } else {
+        imgWrap.appendChild(makePlaceholder());
+      }
+
+      requestAnimationFrame(() => card.classList.add('visible'));
+    }
+
+    function renderError() {
+      document.getElementById('cardWrap').innerHTML = `
+        <div class="error-state">
+          <p>Impossible de charger les données.<br>Vérifiez que le serveur Express est démarré sur le port 3000.</p>
+        </div>
+      `;
+    }
+
+    async function loadRandom() {
+      const btn = document.getElementById('shuffleBtn');
+      btn.disabled = true;
+
+      try {
+        if (allBreeds.length === 0) {
+          const data = await fetchBreeds();
+          allBreeds = data.filter(b => b.image_id);
+        }
+        const breed = getRandomItem(allBreeds);
+        renderCard(breed);
+      } catch (e) {
+        renderError();
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    loadRandom();
+  </script>
+</body>
+</html>

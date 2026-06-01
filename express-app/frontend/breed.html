@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>catApi — race</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #F7F3EE;
+      --ink: #1A1714;
+      --ink-muted: #6B6560;
+      --ink-faint: #C4BDB6;
+      --accent: #C4622D;
+      --accent-light: #F5E8DF;
+      --card-bg: #FFFFFF;
+      --nav-h: 64px;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: var(--nav-h);
+      background: var(--cream);
+      border-bottom: 1px solid var(--ink-faint);
+      display: flex;
+      align-items: center;
+      padding: 0 2rem;
+      gap: 2rem;
+    }
+
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: var(--ink);
+      text-decoration: none;
+      letter-spacing: -.01em;
+      flex: 1;
+    }
+
+    .nav-logo span { color: var(--accent); font-style: italic; }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: .875rem;
+      color: var(--ink-muted);
+      text-decoration: none;
+      letter-spacing: .02em;
+      transition: color .2s;
+    }
+
+    .nav-links a:hover { color: var(--ink); }
+
+    /* ── BREADCRUMB ── */
+    .breadcrumb {
+      max-width: 1000px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 1.5rem 2rem .5rem;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      font-size: .8rem;
+      color: var(--ink-muted);
+    }
+
+    .breadcrumb a {
+      color: var(--ink-muted);
+      text-decoration: none;
+      transition: color .2s;
+    }
+
+    .breadcrumb a:hover { color: var(--accent); }
+    .breadcrumb svg { width: 12px; height: 12px; color: var(--ink-faint); }
+
+    /* ── MAIN LAYOUT ── */
+    .detail-wrap {
+      max-width: 1000px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 1.5rem 2rem 5rem;
+      display: grid;
+      grid-template-columns: 460px 1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+
+    /* ── IMAGE ── */
+    .img-col { position: sticky; top: calc(var(--nav-h) + 1.5rem); }
+
+    .img-frame {
+      width: 100%;
+      aspect-ratio: 1/1;
+      background: var(--accent-light);
+      border-radius: 16px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .breed-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      padding: 1rem;
+    }
+
+    .img-placeholder {
+      width: 100%;
+      aspect-ratio: 1/1;
+      background: var(--accent-light);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      opacity: .4;
+    }
+
+    .img-placeholder svg { width: 56px; height: 56px; }
+
+    /* ── INFO COL ── */
+    .info-col { display: flex; flex-direction: column; gap: 2rem; }
+
+    .breed-label {
+      font-size: .75rem;
+      font-weight: 500;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .breed-name {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 400;
+      line-height: 1.1;
+      letter-spacing: -.02em;
+      margin: .4rem 0 .6rem;
+    }
+
+    .breed-name em { font-style: italic; color: var(--accent); }
+
+    .breed-desc {
+      font-size: .95rem;
+      font-weight: 300;
+      color: var(--ink-muted);
+      line-height: 1.75;
+    }
+
+    /* ── META GRID ── */
+    .meta-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .75rem;
+    }
+
+    .meta-item {
+      background: var(--card-bg);
+      border: 1px solid var(--ink-faint);
+      border-radius: 12px;
+      padding: .9rem 1rem;
+    }
+
+    .meta-label {
+      font-size: .7rem;
+      font-weight: 500;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      margin-bottom: .3rem;
+    }
+
+    .meta-value {
+      font-size: .95rem;
+      font-weight: 500;
+      color: var(--ink);
+    }
+
+    /* ── TAGS ── */
+    .tags-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .4rem;
+    }
+
+    .tag {
+      font-size: .75rem;
+      color: var(--ink-muted);
+      background: var(--card-bg);
+      border: 1px solid var(--ink-faint);
+      border-radius: 100px;
+      padding: .3rem .8rem;
+    }
+
+    /* ── STATS ── */
+    .stats-block { display: flex; flex-direction: column; gap: .75rem; }
+
+    .stat-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .stat-label {
+      font-size: .8rem;
+      color: var(--ink-muted);
+      width: 130px;
+      flex-shrink: 0;
+    }
+
+    .stat-bar {
+      flex: 1;
+      height: 6px;
+      background: var(--ink-faint);
+      border-radius: 100px;
+      overflow: hidden;
+    }
+
+    .stat-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 100px;
+      width: 0;
+      transition: width .6s cubic-bezier(.4,0,.2,1);
+    }
+
+    .stat-val {
+      font-size: .8rem;
+      font-weight: 500;
+      color: var(--ink);
+      width: 16px;
+      text-align: right;
+    }
+
+    /* ── WIKIPEDIA LINK ── */
+    .wiki-link {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      font-size: .85rem;
+      color: var(--accent);
+      text-decoration: none;
+      border: 1px solid var(--accent);
+      border-radius: 100px;
+      padding: .45rem 1.1rem;
+      transition: background .2s, color .2s;
+      align-self: flex-start;
+    }
+
+    .wiki-link:hover { background: var(--accent); color: #fff; }
+    .wiki-link svg { width: 13px; height: 13px; }
+
+    /* ── SKELETON ── */
+    .skeleton {
+      background: linear-gradient(90deg, #ede8e2 25%, #e4dfd8 50%, #ede8e2 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      border-radius: 8px;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* ── ERROR ── */
+    .error-state {
+      max-width: 1000px;
+      margin: 4rem auto;
+      padding: 0 2rem;
+      text-align: center;
+      color: var(--ink-muted);
+      font-size: .95rem;
+      line-height: 1.7;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      margin-top: auto;
+      border-top: 1px solid var(--ink-faint);
+      padding: 1.5rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .footer-logo { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 600; color: var(--ink); }
+    .footer-logo span { color: var(--accent); font-style: italic; }
+
+    .footer-links { display: flex; gap: 1.5rem; list-style: none; }
+    .footer-links a { font-size: .8rem; color: var(--ink-muted); text-decoration: none; transition: color .2s; }
+    .footer-links a:hover { color: var(--ink); }
+    .footer-credit { font-size: .75rem; color: var(--ink-faint); }
+
+    @media (max-width: 780px) {
+      .detail-wrap { grid-template-columns: 1fr; gap: 1.5rem; }
+      .img-col { position: static; }
+      nav, .breadcrumb, .detail-wrap { padding-left: 1rem; padding-right: 1rem; }
+      footer { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="/" class="nav-logo">cat<span>Api</span></a>
+    <ul class="nav-links">
+      <li><a href="/">Accueil</a></li>
+      <li><a href="/breeds">Races</a></li>
+    </ul>
+  </nav>
+
+  <div class="breadcrumb" id="breadcrumb">
+    <a href="/">Accueil</a>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+    <a href="/breeds">Races</a>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+    <span id="breadcrumbName">…</span>
+  </div>
+
+  <main id="main"></main>
+
+  <footer>
+    <span class="footer-logo">cat<span>Api</span></span>
+    <ul class="footer-links">
+      <li><a href="/">Accueil</a></li>
+      <li><a href="/breeds">Toutes les races</a></li>
+      <li><a href="https://thecatapi.com" target="_blank" rel="noopener">The Cat API</a></li>
+    </ul>
+    <span class="footer-credit">Données fournies par The Cat API</span>
+  </footer>
+
+  <script>
+    const API_BASE = '';
+
+    function getIdFromUrl() {
+      const parts = window.location.pathname.split('/');
+      return parts[parts.length - 1];
+    }
+
+    function makePlaceholder() {
+      return `<div class="img-placeholder">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+          <path d="M12 2C8 2 4 5 4 10c0 3 1.5 5.5 4 7l-1 3h10l-1-3c2.5-1.5 4-4 4-7 0-5-4-8-8-8z"/>
+          <circle cx="9" cy="10" r="1"/><circle cx="15" cy="10" r="1"/>
+        </svg>
+      </div>`;
+    }
+
+    function tryLoadImage(imageId, imgEl) {
+      const exts = ['jpg', 'png', 'gif'];
+      const tryNext = (i) => {
+        if (i >= exts.length) {
+          imgEl.outerHTML = makePlaceholder();
+          return;
+        }
+        imgEl.src = `https://cdn2.thecatapi.com/images/${imageId}.${exts[i]}`;
+        imgEl.onerror = () => tryNext(i + 1);
+      };
+      tryNext(0);
+    }
+
+    function renderSkeleton() {
+      document.getElementById('main').innerHTML = `
+        <div class="detail-wrap">
+          <div class="img-col">
+            <div class="skeleton" style="width:100%;aspect-ratio:4/3;border-radius:16px"></div>
+          </div>
+          <div class="info-col" style="gap:1.5rem">
+            <div>
+              <div class="skeleton" style="width:80px;height:12px;margin-bottom:.75rem"></div>
+              <div class="skeleton" style="width:60%;height:40px;margin-bottom:.5rem"></div>
+              <div class="skeleton" style="width:90%;height:12px;margin-bottom:.4rem"></div>
+              <div class="skeleton" style="width:85%;height:12px;margin-bottom:.4rem"></div>
+              <div class="skeleton" style="width:70%;height:12px"></div>
+            </div>
+            <div class="meta-grid">
+              ${Array(4).fill(`<div class="meta-item"><div class="skeleton" style="width:60%;height:10px;margin-bottom:.4rem"></div><div class="skeleton" style="width:80%;height:14px"></div></div>`).join('')}
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function renderBreed(breed) {
+      document.title = `catApi — ${breed.name}`;
+      document.getElementById('breadcrumbName').textContent = breed.name;
+
+      const stats = [
+        { label: 'Adaptabilité',    val: breed.adaptability },
+        { label: 'Affection',       val: breed.affection_level },
+        { label: 'Niveau d\'énergie', val: breed.energy_level },
+        { label: 'Intelligence',    val: breed.intelligence },
+        { label: 'Besoins sociaux', val: breed.social_needs },
+        { label: 'Entretien',       val: breed.grooming },
+      ].filter(s => s.val != null);
+
+      const tags = breed.temperament
+        ? breed.temperament.split(',').map(t => t.trim())
+        : [];
+
+      document.getElementById('main').innerHTML = `
+        <div class="detail-wrap">
+          <div class="img-col">
+            ${breed.image_id
+              ? `<div class="img-frame"><img class="breed-img" id="breedImg" alt="Photo de ${breed.name}" /></div>`
+              : makePlaceholder()
+            }
+          </div>
+
+          <div class="info-col">
+            <div>
+              <p class="breed-label">${breed.origin || ''}</p>
+              <h1 class="breed-name"><em>${breed.name}</em></h1>
+              <p class="breed-desc">${breed.description || ''}</p>
+            </div>
+
+            <div class="meta-grid">
+              ${breed.life_span ? `<div class="meta-item"><p class="meta-label">Espérance de vie</p><p class="meta-value">${breed.life_span} ans</p></div>` : ''}
+              ${breed.weight ? `<div class="meta-item"><p class="meta-label">Poids</p><p class="meta-value">${breed.weight} kg</p></div>` : ''}
+              ${breed.origin ? `<div class="meta-item"><p class="meta-label">Origine</p><p class="meta-value">${breed.origin}</p></div>` : ''}
+            </div>
+
+            ${tags.length ? `
+              <div>
+                <p class="meta-label" style="margin-bottom:.6rem">Tempérament</p>
+                <div class="tags-wrap">${tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+              </div>` : ''}
+
+            ${stats.length ? `
+              <div>
+                <p class="meta-label" style="margin-bottom:.75rem">Caractéristiques</p>
+                <div class="stats-block">
+                  ${stats.map(s => `
+                    <div class="stat-row">
+                      <span class="stat-label">${s.label}</span>
+                      <div class="stat-bar"><div class="stat-fill" data-val="${s.val}"></div></div>
+                      <span class="stat-val">${s.val}</span>
+                    </div>`).join('')}
+                </div>
+              </div>` : ''}
+
+            ${breed.wikipedia_url ? `
+              <a class="wiki-link" href="${breed.wikipedia_url}" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                  <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+                </svg>
+                Voir sur Wikipedia
+              </a>` : ''}
+          </div>
+        </div>`;
+
+      // charger l'image avec fallback
+      if (breed.image_id) {
+        tryLoadImage(breed.image_id, document.getElementById('breedImg'));
+      }
+
+      // animer les barres
+      requestAnimationFrame(() => {
+        document.querySelectorAll('.stat-fill').forEach(el => {
+          const val = parseInt(el.dataset.val, 10);
+          el.style.width = `${(val / 5) * 100}%`;
+        });
+      });
+    }
+
+    function renderError(msg) {
+      document.getElementById('main').innerHTML = `
+        <div class="error-state"><p>${msg}</p></div>`;
+    }
+
+    async function init() {
+      const id = getIdFromUrl();
+      if (!id) { renderError('Identifiant de race manquant.'); return; }
+
+      renderSkeleton();
+
+      try {
+        const res = await fetch(`${API_BASE}/cats/${id}`);
+        if (!res.ok) throw new Error('Race introuvable');
+        const breed = await res.json();
+        renderBreed(breed);
+      } catch (e) {
+        renderError('Race introuvable ou serveur indisponible.');
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

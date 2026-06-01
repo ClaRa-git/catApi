@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>catApi — toutes les races</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #F7F3EE;
+      --ink: #1A1714;
+      --ink-muted: #6B6560;
+      --ink-faint: #C4BDB6;
+      --accent: #C4622D;
+      --accent-light: #F5E8DF;
+      --card-bg: #FFFFFF;
+      --nav-h: 64px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: var(--nav-h);
+      background: var(--cream);
+      border-bottom: 1px solid var(--ink-faint);
+      display: flex;
+      align-items: center;
+      padding: 0 2rem;
+      gap: 2rem;
+    }
+
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: var(--ink);
+      text-decoration: none;
+      letter-spacing: -.01em;
+      flex: 1;
+    }
+
+    .nav-logo span { color: var(--accent); font-style: italic; }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: .875rem;
+      font-weight: 400;
+      color: var(--ink-muted);
+      text-decoration: none;
+      letter-spacing: .02em;
+      transition: color .2s;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active { color: var(--ink); }
+    .nav-links a.active { font-weight: 500; }
+
+    /* ── HEADER ── */
+    .page-header {
+      max-width: 1100px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 3.5rem 2rem 2rem;
+    }
+
+    .page-label {
+      font-size: .75rem;
+      font-weight: 500;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: .75rem;
+    }
+
+    .page-header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 400;
+      line-height: 1.1;
+      letter-spacing: -.02em;
+      margin-bottom: .75rem;
+    }
+
+    .page-header h1 em { font-style: italic; color: var(--accent); }
+
+    .page-meta {
+      font-size: .875rem;
+      color: var(--ink-muted);
+      font-weight: 300;
+    }
+
+    /* ── TOOLBAR ── */
+    .toolbar {
+      max-width: 1100px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 0 2rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .search-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 200px;
+      max-width: 360px;
+    }
+
+    .search-wrap svg {
+      position: absolute;
+      left: .75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      color: var(--ink-faint);
+      pointer-events: none;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: .55rem .75rem .55rem 2.25rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .875rem;
+      color: var(--ink);
+      background: var(--card-bg);
+      border: 1px solid var(--ink-faint);
+      border-radius: 100px;
+      outline: none;
+      transition: border-color .2s;
+    }
+
+    .search-input::placeholder { color: var(--ink-faint); }
+    .search-input:focus { border-color: var(--accent); }
+
+    .filter-select {
+      padding: .55rem 1rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .875rem;
+      color: var(--ink);
+      background: var(--card-bg);
+      border: 1px solid var(--ink-faint);
+      border-radius: 100px;
+      outline: none;
+      cursor: pointer;
+      transition: border-color .2s;
+      appearance: none;
+      padding-right: 2rem;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23C4BDB6' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right .75rem center;
+    }
+
+    .filter-select:focus { border-color: var(--accent); }
+
+    .count-badge {
+      margin-left: auto;
+      font-size: .8rem;
+      color: var(--ink-muted);
+      white-space: nowrap;
+    }
+
+    /* ── GRID ── */
+    .grid-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 0 2rem 4rem;
+    }
+
+    .breeds-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1.25rem;
+    }
+
+    /* ── CARD ── */
+    .breed-card {
+      background: var(--card-bg);
+      border: 1px solid var(--ink-faint);
+      border-radius: 16px;
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      transition: transform .25s ease, box-shadow .25s ease;
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    .breed-card.visible {
+      opacity: 1;
+      transform: translateY(0);
+      transition: opacity .35s ease, transform .35s ease;
+    }
+
+    .breed-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(26,23,20,.08);
+    }
+
+    .card-img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      display: block;
+      background: var(--accent-light);
+    }
+
+    .card-img-placeholder {
+      width: 100%;
+      height: 160px;
+      background: var(--accent-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      opacity: .4;
+    }
+
+    .card-img-placeholder svg { width: 40px; height: 40px; }
+
+    .card-content {
+      padding: 1rem 1.1rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: .35rem;
+      flex: 1;
+    }
+
+    .card-origin {
+      font-size: .7rem;
+      font-weight: 500;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .card-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.2;
+    }
+
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .3rem;
+      margin-top: .15rem;
+    }
+
+    .tag {
+      font-size: .68rem;
+      color: var(--ink-muted);
+      background: var(--cream);
+      border: 1px solid var(--ink-faint);
+      border-radius: 100px;
+      padding: .15rem .55rem;
+    }
+
+    /* ── EMPTY / ERROR ── */
+    .state-msg {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--ink-muted);
+      font-size: .9rem;
+      line-height: 1.7;
+    }
+
+    /* ── SKELETON ── */
+    .skeleton {
+      background: linear-gradient(90deg, #ede8e2 25%, #e4dfd8 50%, #ede8e2 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    .sk-card {
+      background: var(--card-bg);
+      border: 1px solid var(--ink-faint);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .sk-img { width: 100%; height: 160px; }
+    .sk-body { padding: 1rem 1.1rem; display: flex; flex-direction: column; gap: .6rem; }
+    .sk-line { height: 11px; border-radius: 6px; }
+
+    /* ── FOOTER ── */
+    footer {
+      margin-top: auto;
+      border-top: 1px solid var(--ink-faint);
+      padding: 1.5rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .footer-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .footer-logo span { color: var(--accent); font-style: italic; }
+
+    .footer-links {
+      display: flex;
+      gap: 1.5rem;
+      list-style: none;
+    }
+
+    .footer-links a {
+      font-size: .8rem;
+      color: var(--ink-muted);
+      text-decoration: none;
+      transition: color .2s;
+    }
+
+    .footer-links a:hover { color: var(--ink); }
+
+    .footer-credit { font-size: .75rem; color: var(--ink-faint); }
+
+    @media (max-width: 600px) {
+      nav, .page-header, .toolbar, .grid-wrap { padding-left: 1rem; padding-right: 1rem; }
+      footer { flex-direction: column; align-items: flex-start; }
+      .count-badge { margin-left: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="/" class="nav-logo">cat<span>Api</span></a>
+    <ul class="nav-links">
+      <li><a href="/">Accueil</a></li>
+      <li><a href="/breeds" class="active">Races</a></li>
+    </ul>
+  </nav>
+
+  <header class="page-header">
+    <p class="page-label">Catalogue complet</p>
+    <h1>Toutes les <em>races</em></h1>
+    <p class="page-meta" id="pageMeta">Chargement…</p>
+  </header>
+
+  <div class="toolbar">
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input class="search-input" type="search" id="searchInput" placeholder="Rechercher une race…" aria-label="Rechercher une race" />
+    </div>
+
+    <select class="filter-select" id="originFilter" aria-label="Filtrer par origine">
+      <option value="">Toutes les origines</option>
+    </select>
+
+    <span class="count-badge" id="countBadge"></span>
+  </div>
+
+  <main>
+    <div class="grid-wrap">
+      <div class="breeds-grid" id="grid">
+        <!-- skeletons -->
+        ${Array(12).fill(`
+          <div class="sk-card">
+            <div class="skeleton sk-img"></div>
+            <div class="sk-body">
+              <div class="skeleton sk-line" style="width:35%"></div>
+              <div class="skeleton sk-line" style="width:65%;height:16px"></div>
+              <div class="skeleton sk-line" style="width:90%"></div>
+              <div class="skeleton sk-line" style="width:75%"></div>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <span class="footer-logo">cat<span>Api</span></span>
+    <ul class="footer-links">
+      <li><a href="/">Accueil</a></li>
+      <li><a href="/breeds">Toutes les races</a></li>
+      <li><a href="https://thecatapi.com" target="_blank" rel="noopener">The Cat API</a></li>
+    </ul>
+    <span class="footer-credit">Données fournies par The Cat API</span>
+  </footer>
+
+  <script>
+    const API_BASE = '';
+    let allBreeds = [];
+    let filtered = [];
+
+    async function fetchBreeds() {
+      const res = await fetch(`${API_BASE}/cats`);
+      if (!res.ok) throw new Error('Erreur réseau');
+      return res.json();
+    }
+
+    function getTags(breed) {
+      if (!breed.temperament) return [];
+      return breed.temperament.split(',').map(t => t.trim()).slice(0, 3);
+    }
+
+    function renderSkeletons() {
+      const grid = document.getElementById('grid');
+      grid.innerHTML = Array(12).fill(`
+        <div class="sk-card">
+          <div class="skeleton sk-img"></div>
+          <div class="sk-body">
+            <div class="skeleton sk-line" style="width:35%"></div>
+            <div class="skeleton sk-line" style="width:65%;height:16px"></div>
+            <div class="skeleton sk-line" style="width:90%"></div>
+            <div class="skeleton sk-line" style="width:75%"></div>
+          </div>
+        </div>`).join('');
+    }
+
+    function makePlaceholder() {
+      const div = document.createElement('div');
+      div.className = 'card-img-placeholder';
+      div.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+        <path d="M12 2C8 2 4 5 4 10c0 3 1.5 5.5 4 7l-1 3h10l-1-3c2.5-1.5 4-4 4-7 0-5-4-8-8-8z"/>
+        <circle cx="9" cy="10" r="1"/><circle cx="15" cy="10" r="1"/>
+      </svg>`;
+      return div;
+    }
+
+    function tryLoadImage(imageId, imgEl) {
+      const exts = ['jpg', 'png', 'gif'];
+      const tryNext = (i) => {
+        if (i >= exts.length) { imgEl.replaceWith(makePlaceholder()); return; }
+        imgEl.src = `https://cdn2.thecatapi.com/images/${imageId}.${exts[i]}`;
+        imgEl.onerror = () => tryNext(i + 1);
+      };
+      tryNext(0);
+    }
+
+    function renderGrid(breeds) {
+      const grid = document.getElementById('grid');
+
+      if (breeds.length === 0) {
+        grid.innerHTML = `<p class="state-msg">Aucune race ne correspond à votre recherche.</p>`;
+        document.getElementById('countBadge').textContent = '0 race';
+        return;
+      }
+
+      grid.innerHTML = '';
+      const count = breeds.length;
+      document.getElementById('countBadge').textContent = `${count} race${count > 1 ? 's' : ''}`;
+
+      breeds.forEach((breed, i) => {
+        const tags = getTags(breed);
+        const card = document.createElement('a');
+        card.className = 'breed-card';
+        card.href = `/breeds/${breed.id}`;
+        card.setAttribute('aria-label', breed.name);
+
+        card.innerHTML = `
+          <div class="card-img-slot"></div>
+          <div class="card-content">
+            <p class="card-origin">${breed.origin || '—'}</p>
+            <h2 class="card-name">${breed.name}</h2>
+            ${tags.length ? `<div class="card-tags">${tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>` : ''}
+          </div>
+        `;
+
+        const slot = card.querySelector('.card-img-slot');
+        if (breed.image_id) {
+          const img = document.createElement('img');
+          img.className = 'card-img';
+          img.alt = `Photo de ${breed.name}`;
+          img.loading = 'lazy';
+          slot.appendChild(img);
+          tryLoadImage(breed.image_id, img);
+        } else {
+          slot.appendChild(makePlaceholder());
+        }
+
+        grid.appendChild(card);
+
+        // apparition décalée
+        setTimeout(() => card.classList.add('visible'), i * 30);
+      });
+    }
+
+    function populateOrigins(breeds) {
+      const origins = [...new Set(breeds.map(b => b.origin).filter(Boolean))].sort();
+      const select = document.getElementById('originFilter');
+      origins.forEach(o => {
+        const opt = document.createElement('option');
+        opt.value = o;
+        opt.textContent = o;
+        select.appendChild(opt);
+      });
+    }
+
+    function applyFilters() {
+      const q = document.getElementById('searchInput').value.toLowerCase().trim();
+      const origin = document.getElementById('originFilter').value;
+
+      filtered = allBreeds.filter(b => {
+        const matchName = !q || b.name.toLowerCase().includes(q) || (b.temperament || '').toLowerCase().includes(q);
+        const matchOrigin = !origin || b.origin === origin;
+        return matchName && matchOrigin;
+      });
+
+      renderGrid(filtered);
+    }
+
+    async function init() {
+      renderSkeletons();
+      try {
+        allBreeds = await fetchBreeds();
+        document.getElementById('pageMeta').textContent = `${allBreeds.length} races répertoriées`;
+        populateOrigins(allBreeds);
+        renderGrid(allBreeds);
+      } catch (e) {
+        document.getElementById('grid').innerHTML = `
+          <p class="state-msg">Impossible de charger les données.<br>Vérifiez que le serveur Express est démarré.</p>`;
+        document.getElementById('pageMeta').textContent = '';
+      }
+    }
+
+    document.getElementById('searchInput').addEventListener('input', applyFilters);
+    document.getElementById('originFilter').addEventListener('change', applyFilters);
+
+    init();
+  </script>
+</body>
+</html>
