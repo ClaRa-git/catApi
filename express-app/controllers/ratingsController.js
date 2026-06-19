@@ -8,6 +8,7 @@ const getRating = async (req, res) => {
     const { data } = await axios.get(`${SYMFONY_URL}/ratings/${req.params.id}`, { headers: getHeaders(req) });
     res.json(data);
   } catch (e) {
+    console.error(e);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 };
@@ -21,6 +22,7 @@ const postRating = async (req, res) => {
     );
     res.json(data);
   } catch (e) {
+    console.error(e);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 };

@@ -6,6 +6,7 @@ const incrementView = async (req, res) => {
     const { data } = await axios.post(`${SYMFONY_URL}/views/${req.params.id}`);
     res.json(data);
   } catch (e) {
+    console.error(e);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 };
@@ -15,6 +16,7 @@ const getView = async (req, res) => {
     const { data } = await axios.get(`${SYMFONY_URL}/views/${req.params.id}`);
     res.json(data);
   } catch (e) {
+    console.error(e);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 };
