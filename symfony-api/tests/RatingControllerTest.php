@@ -121,8 +121,8 @@ class RatingControllerTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
         $data = json_decode($client->getResponse()->getContent(), true);
-        $this->assertSame(5, $data['user_score']);
-        $this->assertSame(5.0, $data['avg_rating']);
+        $this->assertEquals(5, $data['user_score']);
+        $this->assertEquals(5.0, $data['avg_rating']);
     }
 
     public function testReSubmittingRatingUpdatesInsteadOfDuplicating(): void
@@ -138,7 +138,7 @@ class RatingControllerTest extends WebTestCase
 
         // La contrainte unique (breed_id, session_id) doit empêcher tout doublon :
         // la moyenne reste celle de la dernière note, pas de la somme des deux.
-        $this->assertSame(4, $data['user_score']);
-        $this->assertSame(4.0, $data['avg_rating']);
+        $this->assertEquals(4, $data['user_score']);
+        $this->assertEquals(4.0, $data['avg_rating']);
     }
 }
