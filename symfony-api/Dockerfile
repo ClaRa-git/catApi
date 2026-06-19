@@ -22,5 +22,7 @@ USER appuser
 
 RUN composer install --no-interaction --optimize-autoloader --no-scripts
 
+RUN chmod +x docker/entrypoint.sh
+
 EXPOSE 8000
-CMD ["php", "-S", "0.0.0.0:8000", "-t", "public"]
+ENTRYPOINT ["docker/entrypoint.sh"]

@@ -31,6 +31,10 @@ jobs:
         working-directory: symfony-api
         run: composer install --no-interaction --prefer-dist
 
+      - name: Run PHPStan (static analysis)
+        working-directory: symfony-api
+        run: composer phpstan
+
       - name: Run Symfony tests
         working-directory: symfony-api
         run: php bin/phpunit
@@ -46,6 +50,10 @@ jobs:
       - name: Install Express deps
         working-directory: express-app
         run: npm ci
+
+      - name: Run ESLint
+        working-directory: express-app
+        run: npm run lint
 
       - name: Run Express tests
         working-directory: express-app
